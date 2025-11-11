@@ -33,6 +33,11 @@ class _MyHomePageState extends State<MyHomePage> {
   String? _errorMessage; // Menyimpa pesan error
   StreamSubscription<Position>? _positionStream; // Penyimpan stream
   String? currentAddress; // menyimpan data alamat
+  String? _distanceToPNB; // menyimpan jarak 
+
+
+  static const double _pnbLatitude = -6.2088;
+  static const double _pnbLongitude = 106.8456;
 
   // Variabel untuk Latihan 1 dan 2 telah dihapus dari versi ini
 
@@ -116,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _handleStartTracking() {
+    void _handleStartTracking() {
     _positionStream?.cancel();
 
     final LocationSettings locationSettings = LocationSettings(
@@ -129,13 +134,21 @@ class _MyHomePageState extends State<MyHomePage> {
       _positionStream =
           Geolocator.getPositionStream(
             locationSettings: locationSettings,
-          ).listen((Position position) {
+          ).listen((Position position) async {
+            double distanceInMeters = Geolocator.distanceBetween(
+              position.latitude,
+              position.longitude,
+               _pnbLatitude,
+              _pnbLongitude,
+            );
             setState(() {
               _currentPosition = position;
               _errorMessage = null;
-            });
+                _distanceToPNB = '${(distanceInMeters / 1000).toStringAsFixed(2)} km';
 
-            _getAddressFromLatLng(position);
+            });
+            _getAddressFromLatLng(position); // Perbarui alamat 
+           
           });
     } catch (e) {
       setState(() {
@@ -143,6 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
+
 
   void _handleStopTracking() {
     _positionStream?.cancel(); // Hentikan stream
@@ -155,95 +169,90 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Praktikum Geolocator (Dasar)")),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.location_on, size: 50, color: Colors.blue),
-                SizedBox(height: 16),
+      appBar: AppBar(title: Text("Tugas 2 - Jarak Real-time ke PNB")),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Icon(Icons.location_on, size: 60, color: Colors.blue),
+              SizedBox(height: 16),
 
-                // --- Area Tampilan Informasi ---
-                ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: 150),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Tampilkan Error
-                      if (_errorMessage != null)
-                        Text(
-                          _errorMessage!,
-                          style: TextStyle(color: Colors.red, fontSize: 16),
-                          textAlign: TextAlign.center,
-                        ),
-
-                      SizedBox(height: 16),
-
-                      // Tampilkan Posisi (Lat/Lng)
-                      if (_currentPosition != null)
-                        Text(
-                          "Lat: ${_currentPosition!.latitude}\nLng: ${_currentPosition!.longitude}",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                      SizedBox(height: 8),
-
-                      // Tampilkan Alamat jika ada
-                      if (currentAddress != null)
-                        Text("Alamat: $currentAddress",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                    ],
-                  ),
+              // Pesan error
+              if (_errorMessage != null)
+                Text(
+                  _errorMessage!,
+                  style: TextStyle(color: Colors.red, fontSize: 16),
+                  textAlign: TextAlign.center,
                 ),
 
-                SizedBox(height: 32),
-
-                ElevatedButton.icon(
-                  icon: Icon(Icons.location_searching),
-                  label: Text('Dapatkan Lokasi Sekarang'),
-                  onPressed: _handleGetLocation,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 40),
-                  ),
+              // Lokasi dan alamat
+              if (_currentPosition != null) ...[
+                Text(
+                  "Latitude: ${_currentPosition!.latitude}\nLongitude: ${_currentPosition!.longitude}",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 16),
-
-                // Tombol Mulai / Henti Lacak
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.play_arrow),
-                      label: Text('Mulai Lacak'),
-                      onPressed: _handleStartTracking,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
+                if (currentAddress != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      "Alamat: $currentAddress",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16),
                     ),
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.stop),
-                      label: Text('Henti Lacak'),
-                      onPressed: _handleStopTracking,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
               ],
-            ),
+
+              //[Langkah 4] Tampilkan jarak real-time
+              if (_distanceToPNB != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Text(
+                    _distanceToPNB!,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.green[700],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+              SizedBox(height: 32),
+
+              // Tombol Aksi
+              ElevatedButton.icon(
+                icon: Icon(Icons.location_searching),
+                label: Text("Dapatkan Lokasi Sekarang"),
+                onPressed: _handleGetLocation,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 45),
+                ),
+              ),
+              SizedBox(height: 16),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.play_arrow),
+                    label: Text("Mulai Lacak"),
+                    onPressed: _handleStartTracking,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.stop),
+                    label: Text("Henti Lacak"),
+                    onPressed: _handleStopTracking,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
