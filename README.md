@@ -26,10 +26,32 @@ Paket ini digunakan untuk mengubah koordinat dari Latitude dan longitude menjadi
 - Pada startTracking
 <img width="895" height="776" alt="image" src="https://github.com/user-attachments/assets/d0f491b7-9fe4-4778-9203-6d7478fdf599" />
 
-11. Tampilkan currentAddress di UI Anda, di bawah Lat/Lng.
+## 6. Tampilkan currentAddress di UI Anda, di bawah Lat/Lng.
 <img width="562" height="274" alt="image" src="https://github.com/user-attachments/assets/983c8daf-7dae-44a5-9af1-5d4325e02806" />
 
 ## Hasil Implementasi
 1. Tampilan
 <img width="540" height="1170" alt="image" src="https://github.com/user-attachments/assets/f1b98e46-df6e-445a-9dcf-decbc6818d94" />
+
+**Tugas 2**: Jarak Real-time ke Titik Tetap Manfaatkan fungsi Geolocator.distanceBetween dari Langkah 4.
+
+# 1. Buat variabel String? distanceToPNB; di MyHomePageState.
+<img width="811" height="220" alt="image" src="https://github.com/user-attachments/assets/43e853ed-729f-41da-acd7-e1034c558fc5" />
+
+# 2. Di dalam startTracking (di dalam .listen()), panggil fungsi untuk menghitung jarak:
+fungsi untuk menghitung jarak 
+<img width="686" height="282" alt="image" src="https://github.com/user-attachments/assets/d92f5c04-377b-4234-b3cc-a98779d26c19" />
+
+# 3. Simpan hasilnya di distanceToPNB menggunakan setState.
+menambahkan setState untuk memberi tahu Flutter bahwa data posisi berubah di tempat menyimpan hasil jarak yaitu di distanceToPNB.
+<img width="735" height="152" alt="image" src="https://github.com/user-attachments/assets/93c4fe6e-1432-4a3e-bb10-3dbbbecebb8b" />
+
+# 4. Tampilkan distanceToPNB di UI agar jaraknya ter-update secara real-time saat Anda bergerak
+<img width="510" height="381" alt="image" src="https://github.com/user-attachments/assets/e0ac8645-ad09-45aa-8b62-bd2cacf1ffe5" />
+
+## Hasil Implementasi
+1. Hasil jarak terlihat ketika berjalan dari titik awal ke titik tujuan
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/499214e8-2016-43d0-b0ea-f4b9aabbe1a0" />
+
+Menunjukkan titik koordinat lokasi saat ini Latitude dan Longitude lalu Melacak posisi secara real-time dan memperbarui jarak otomatis.
 
